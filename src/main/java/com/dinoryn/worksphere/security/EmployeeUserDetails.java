@@ -65,4 +65,8 @@ public class EmployeeUserDetails implements UserDetails {
     public boolean isEnabled(){
         return true;
     }
+
+    public Employee getEmployee() {
+        return employee;
+    }
 }

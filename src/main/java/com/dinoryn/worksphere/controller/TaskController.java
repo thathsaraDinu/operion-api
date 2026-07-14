@@ -3,6 +3,7 @@ package com.dinoryn.worksphere.controller;
 import com.dinoryn.worksphere.dto.TaskCreateRequest;
 import com.dinoryn.worksphere.dto.TaskResponse;
 import com.dinoryn.worksphere.dto.TaskUpdateRequest;
+import com.dinoryn.worksphere.entity.TaskStatus;
 import com.dinoryn.worksphere.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -72,5 +73,35 @@ public class TaskController {
         taskService.deleteTask(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/project/{projectId}")
+    public ResponseEntity<List<TaskResponse>> getTasksByProject(
+            @PathVariable Long projectId
+    ) {
+
+        return ResponseEntity.ok(
+                taskService.getTasksByProject(projectId)
+        );
+    }
+
+    @GetMapping("/employee/{EmployeeId}")
+    public ResponseEntity<List<TaskResponse>> getTasksByEmployee(
+            @PathVariable Long EmployeeId
+    ) {
+
+        return ResponseEntity.ok(
+                taskService.getTasksByEmployee(EmployeeId)
+        );
+    }
+
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<TaskResponse>> getTasksByStatus(
+            @PathVariable TaskStatus status
+    ) {
+
+        return ResponseEntity.ok(
+                taskService.getTasksByStatus(status)
+        );
     }
 }

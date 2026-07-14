@@ -1,4 +1,8 @@
 package com.dinoryn.worksphere.exception;
 
-public class InvalidLeaveRequestException {
+public class InvalidLeaveRequestException extends RuntimeException {
+
+    public InvalidLeaveRequestException(String message) {
+        super(message);
+    }
 }

@@ -1,4 +1,10 @@
-package com.dinoryn.worksphere.dto;
+package com.dinoryn.worksphere.entity;
 
-public class LeaveType {
+public enum LeaveType {
+
+    ANNUAL,
+    SICK,
+    CASUAL,
+    MATERNITY,
+    UNPAID
 }

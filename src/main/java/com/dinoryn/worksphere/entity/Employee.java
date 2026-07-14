@@ -50,4 +50,7 @@ public class Employee {
 
     @OneToMany(mappedBy = "assignedEmployee")
     private List<Task> tasks = new ArrayList<>();
+
+    @OneToMany(mappedBy = "employee")
+    private List<LeaveRequest> leaveRequests = new ArrayList<>();
 }

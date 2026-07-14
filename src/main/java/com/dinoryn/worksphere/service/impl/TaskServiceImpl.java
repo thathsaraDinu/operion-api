@@ -6,6 +6,7 @@ import com.dinoryn.worksphere.dto.TaskUpdateRequest;
 import com.dinoryn.worksphere.entity.Employee;
 import com.dinoryn.worksphere.entity.Project;
 import com.dinoryn.worksphere.entity.Task;
+import com.dinoryn.worksphere.entity.TaskStatus;
 import com.dinoryn.worksphere.exception.EmployeeNotFoundException;
 import com.dinoryn.worksphere.exception.ProjectNotFoundException;
 import com.dinoryn.worksphere.exception.TaskNotFoundException;
@@ -105,5 +106,29 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new TaskNotFoundException(id));
 
         taskRepository.delete(task);
+    }
+
+    @Override
+    public List<TaskResponse> getTasksByProject(Long projectId) {
+        return taskRepository.findByProjectId(projectId)
+                .stream()
+                .map(taskMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<TaskResponse> getTasksByEmployee(Long employeeId) {
+        return taskRepository.findByAssignedEmployeeId(employeeId)
+                .stream()
+                .map(taskMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<TaskResponse> getTasksByStatus(TaskStatus status) {
+        return taskRepository.findByStatus(status)
+                .stream()
+                .map(taskMapper::toResponse)
+                .toList();
     }
 }
