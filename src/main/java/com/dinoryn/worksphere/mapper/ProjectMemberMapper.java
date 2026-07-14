@@ -1,0 +1,41 @@
+package com.dinoryn.worksphere.mapper;
+
+import com.dinoryn.worksphere.dto.ProjectMemberResponse;
+import com.dinoryn.worksphere.entity.ProjectMember;
+import org.springframework.stereotype.Component;
+
+@Component
+public class ProjectMemberMapper {
+
+
+    public ProjectMemberResponse toResponse(ProjectMember member) {
+
+        ProjectMemberResponse response = new ProjectMemberResponse();
+
+        response.setId(member.getId());
+
+        response.setEmployeeId(
+                member.getEmployee().getId()
+        );
+
+        response.setEmployeeName(
+                member.getEmployee().getFirstName()
+                        + " "
+                        + member.getEmployee().getLastName()
+        );
+
+        response.setProjectId(
+                member.getProject().getId()
+        );
+
+        response.setProjectRole(
+                member.getProjectRole()
+        );
+
+        response.setAssignedDate(
+                member.getAssignedDate()
+        );
+
+        return response;
+    }
+}
