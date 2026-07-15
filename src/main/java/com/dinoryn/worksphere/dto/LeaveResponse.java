@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -32,4 +33,8 @@ public class LeaveResponse {
     private String approvedByName;
 
     private LocalDate createdDate;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 }

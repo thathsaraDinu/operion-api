@@ -6,6 +6,7 @@ import jakarta.persistence.Enumerated;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class ProjectMemberResponse {
@@ -22,4 +23,8 @@ public class ProjectMemberResponse {
     private ProjectRole projectRole;
 
     private LocalDate assignedDate;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 }

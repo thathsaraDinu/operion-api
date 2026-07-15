@@ -16,10 +16,12 @@ import com.dinoryn.worksphere.repository.ProjectRepository;
 import com.dinoryn.worksphere.repository.TaskRepository;
 import com.dinoryn.worksphere.service.TaskService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -71,12 +73,12 @@ public class TaskServiceImpl implements TaskService {
 
 
     @Override
-    public List<TaskResponse> getAllTasks() {
+    public Page<TaskResponse> getAllTasks(
+            Pageable pageable
+    ) {
 
-        return taskRepository.findAll()
-                .stream()
-                .map(taskMapper::toResponse)
-                .toList();
+        return taskRepository.findAll(pageable)
+                .map(taskMapper::toResponse);
     }
 
 
@@ -109,26 +111,33 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskResponse> getTasksByProject(Long projectId) {
-        return taskRepository.findByProjectId(projectId)
-                .stream()
-                .map(taskMapper::toResponse)
-                .toList();
+    @Transactional(readOnly = true)
+    public Page<TaskResponse> getTasksByProject(Long projectId,
+                                                Pageable pageable) {
+        return taskRepository.findByProjectId(
+                        projectId,
+                        pageable
+                )
+                .map(taskMapper::toResponse);
     }
 
     @Override
-    public List<TaskResponse> getTasksByEmployee(Long employeeId) {
-        return taskRepository.findByAssignedEmployeeId(employeeId)
-                .stream()
-                .map(taskMapper::toResponse)
-                .toList();
+    @Transactional(readOnly = true)
+    public Page<TaskResponse> getTasksByEmployee(Long employeeId, Pageable pageable) {
+        return taskRepository.findByAssignedEmployeeId(
+                        employeeId,
+                        pageable
+                )
+                .map(taskMapper::toResponse);
     }
 
     @Override
-    public List<TaskResponse> getTasksByStatus(TaskStatus status) {
-        return taskRepository.findByStatus(status)
-                .stream()
-                .map(taskMapper::toResponse)
-                .toList();
+    @Transactional(readOnly = true)
+    public Page<TaskResponse> getTasksByStatus(TaskStatus status, Pageable pageable) {
+        return taskRepository.findByStatus(
+                        status,
+                        pageable
+                )
+                .map(taskMapper::toResponse);
     }
 }

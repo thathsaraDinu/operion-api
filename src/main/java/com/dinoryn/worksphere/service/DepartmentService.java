@@ -4,24 +4,39 @@ import com.dinoryn.worksphere.dto.DepartmentCreateRequest;
 import com.dinoryn.worksphere.dto.DepartmentResponse;
 import com.dinoryn.worksphere.dto.DepartmentUpdateRequest;
 import com.dinoryn.worksphere.dto.EmployeeResponse;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface DepartmentService {
 
-    DepartmentResponse saveDepartment(DepartmentCreateRequest request);
+    DepartmentResponse saveDepartment(
+            DepartmentCreateRequest request
+    );
 
-    List<DepartmentResponse> getAllDepartments();
 
-    DepartmentResponse getDepartmentById(Long id);
+    Page<DepartmentResponse> getAllDepartments(
+            Pageable pageable
+    );
+
+
+    DepartmentResponse getDepartmentById(
+            Long id
+    );
+
 
     DepartmentResponse updateDepartment(
             Long id,
             DepartmentUpdateRequest request
     );
 
-    void deleteDepartment(Long id);
 
-    List<EmployeeResponse> getEmployeesByDepartment(Long departmentId);
+    void deleteDepartment(
+            Long id
+    );
 
+
+    Page<EmployeeResponse> getEmployeesByDepartment(
+            Long departmentId,
+            Pageable pageable
+    );
 }

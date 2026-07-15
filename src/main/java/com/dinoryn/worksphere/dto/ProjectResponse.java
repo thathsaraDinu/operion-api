@@ -4,6 +4,7 @@ import com.dinoryn.worksphere.entity.ProjectStatus;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class ProjectResponse {
@@ -19,4 +20,8 @@ public class ProjectResponse {
     private LocalDate endDate;
 
     private ProjectStatus status;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 }

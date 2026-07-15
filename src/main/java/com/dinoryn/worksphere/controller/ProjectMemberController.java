@@ -5,11 +5,11 @@ import com.dinoryn.worksphere.dto.ProjectMemberResponse;
 import com.dinoryn.worksphere.service.ProjectMemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/projects/{projectId}/members")
@@ -33,12 +33,16 @@ public class ProjectMemberController {
 
 
     @GetMapping
-    public ResponseEntity<List<ProjectMemberResponse>> getMembers(
-            @PathVariable Long projectId
+    public ResponseEntity<Page<ProjectMemberResponse>> getProjectMembers(
+            @PathVariable Long projectId,
+            Pageable pageable
     ) {
 
         return ResponseEntity.ok(
-                projectMemberService.getProjectMembers(projectId)
+                projectMemberService.getProjectMembers(
+                        projectId,
+                        pageable
+                )
         );
     }
 
@@ -49,7 +53,10 @@ public class ProjectMemberController {
             @PathVariable Long memberId
     ) {
 
-        projectMemberService.removeMember(memberId);
+        projectMemberService.removeMember(
+                projectId,
+                memberId
+        );
 
         return ResponseEntity.noContent().build();
     }

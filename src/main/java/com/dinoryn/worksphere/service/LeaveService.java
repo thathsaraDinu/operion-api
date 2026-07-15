@@ -6,8 +6,9 @@ import com.dinoryn.worksphere.dto.LeaveResponse;
 import com.dinoryn.worksphere.dto.LeaveUpdateRequest;
 import com.dinoryn.worksphere.entity.Employee;
 import com.dinoryn.worksphere.entity.LeaveStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 
 public interface LeaveService {
 
@@ -29,12 +30,18 @@ public interface LeaveService {
 
     LeaveResponse getLeaveRequestById(Employee employee, Long leaveRequestId);
 
-    List<LeaveResponse> getAllLeaveRequests(Employee employee);
+    Page<LeaveResponse> getAllLeaveRequests(
+            Pageable pageable
+    );
 
-    List<LeaveResponse> getMyLeaveRequests(Employee employee);
+    Page<LeaveResponse> getMyLeaveRequests(
+            Employee employee,
+            Pageable pageable
+    );
 
-    List<LeaveResponse> getLeaveRequestsByStatus(
-            Employee employee, LeaveStatus status
+    Page<LeaveResponse> getLeaveRequestsByStatus(
+            LeaveStatus status,
+            Pageable pageable
     );
 
     void deleteLeaveRequest(

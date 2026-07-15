@@ -9,9 +9,10 @@ import com.dinoryn.worksphere.mapper.ProjectMapper;
 import com.dinoryn.worksphere.repository.ProjectRepository;
 import com.dinoryn.worksphere.service.ProjectService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,12 +44,13 @@ public class ProjectServiceImpl implements ProjectService {
 
 
     @Override
-    public List<ProjectResponse> getAllProjects() {
+    @Transactional(readOnly = true)
+    public Page<ProjectResponse> getAllProjects(
+            Pageable pageable
+    ) {
 
-        return projectRepository.findAll()
-                .stream()
-                .map(projectMapper::toResponse)
-                .toList();
+        return projectRepository.findAll(pageable)
+                .map(projectMapper::toResponse);
     }
 
 

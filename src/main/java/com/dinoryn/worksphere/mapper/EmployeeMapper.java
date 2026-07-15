@@ -37,6 +37,8 @@ public class EmployeeMapper {
         response.setPosition(employee.getPosition());
         response.setJoiningDate(employee.getJoiningDate());
         response.setStatus(employee.getStatus());
+        response.setCreatedAt(employee.getCreatedAt());
+        response.setUpdatedAt(employee.getUpdatedAt());
 
         if(employee.getDepartment() != null){
 

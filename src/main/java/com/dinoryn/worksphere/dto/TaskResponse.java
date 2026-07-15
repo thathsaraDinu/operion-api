@@ -5,6 +5,7 @@ import com.dinoryn.worksphere.entity.TaskStatus;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class TaskResponse {
@@ -28,4 +29,8 @@ public class TaskResponse {
     private Long assignedEmployeeId;
 
     private String assignedEmployeeName;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 }

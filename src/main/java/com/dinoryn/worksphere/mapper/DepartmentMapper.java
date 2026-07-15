@@ -29,6 +29,8 @@ public class DepartmentMapper {
         response.setName(department.getName());
         response.setCode(department.getCode());
         response.setDescription(department.getDescription());
+        response.setCreatedAt(department.getCreatedAt());
+        response.setUpdatedAt(department.getUpdatedAt());
 
         return response;
     }

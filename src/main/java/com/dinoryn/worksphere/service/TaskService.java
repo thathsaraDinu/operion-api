@@ -4,8 +4,9 @@ import com.dinoryn.worksphere.dto.TaskCreateRequest;
 import com.dinoryn.worksphere.dto.TaskResponse;
 import com.dinoryn.worksphere.dto.TaskUpdateRequest;
 import com.dinoryn.worksphere.entity.TaskStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 
 public interface TaskService {
 
@@ -13,15 +14,24 @@ public interface TaskService {
 
     TaskResponse getTaskById(Long id);
 
-    List<TaskResponse> getAllTasks();
+    Page<TaskResponse> getAllTasks(Pageable pageable);
 
     TaskResponse updateTask(Long id, TaskUpdateRequest request);
 
     void deleteTask(Long id);
 
-    List<TaskResponse> getTasksByProject(Long projectId);
+    Page<TaskResponse> getTasksByProject(
+            Long projectId,
+            Pageable pageable
+    );
 
-    List<TaskResponse> getTasksByEmployee(Long employeeId);
+    Page<TaskResponse> getTasksByEmployee(
+            Long employeeId,
+            Pageable pageable
+    );
 
-    List<TaskResponse> getTasksByStatus(TaskStatus status);
+    Page<TaskResponse> getTasksByStatus(
+            TaskStatus status,
+            Pageable pageable
+    );
 }

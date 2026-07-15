@@ -11,13 +11,13 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Task {
+public class Task extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-
+    
+    @Column(nullable = false)
     private String title;
 
 
@@ -36,7 +36,10 @@ public class Task {
 
 
     @ManyToOne
-    @JoinColumn(name = "project_id")
+    @JoinColumn(
+            name = "project_id",
+            nullable = false
+    )
     private Project project;
 
 

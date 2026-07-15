@@ -32,6 +32,8 @@ public class ProjectMapper {
         response.setStartDate(project.getStartDate());
         response.setEndDate(project.getEndDate());
         response.setStatus(project.getStatus());
+        response.setCreatedAt(project.getCreatedAt());
+        response.setUpdatedAt(project.getUpdatedAt());
 
         return response;
     }

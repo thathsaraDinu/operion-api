@@ -14,9 +14,9 @@ import com.dinoryn.worksphere.repository.EmployeeRepository;
 import com.dinoryn.worksphere.service.DepartmentService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -48,20 +48,24 @@ public class DepartmentServiceImpl implements DepartmentService {
 
 
     @Override
-    public List<DepartmentResponse> getAllDepartments() {
+    public Page<DepartmentResponse> getAllDepartments(
+            Pageable pageable
+    ) {
 
-        return departmentRepository.findAll()
-                .stream()
+        return departmentRepository.findAll(pageable)
                 .map(department -> {
-                    DepartmentResponse response = departmentMapper.toResponse(department);
+
+                    DepartmentResponse response =
+                            departmentMapper.toResponse(department);
 
                     response.setEmployeeCount(
-                            employeeRepository.countByDepartmentId(department.getId())
+                            employeeRepository.countByDepartmentId(
+                                    department.getId()
+                            )
                     );
 
                     return response;
-                })
-                .toList();
+                });
     }
 
 
@@ -122,9 +126,10 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    public List<EmployeeResponse> getEmployeesByDepartment(
-            Long departmentId
-    ){
+    public Page<EmployeeResponse> getEmployeesByDepartment(
+            Long departmentId,
+            Pageable pageable
+    ) {
 
         departmentRepository.findById(departmentId)
                 .orElseThrow(
@@ -133,9 +138,10 @@ public class DepartmentServiceImpl implements DepartmentService {
 
 
         return employeeRepository
-                .findByDepartmentId(departmentId)
-                .stream()
-                .map(employeeMapper::toResponse)
-                .toList();
+                .findByDepartmentId(
+                        departmentId,
+                        pageable
+                )
+                .map(employeeMapper::toResponse);
     }
 }

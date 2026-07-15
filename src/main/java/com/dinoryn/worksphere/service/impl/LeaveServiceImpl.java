@@ -13,13 +13,14 @@ import com.dinoryn.worksphere.exception.LeaveRequestNotFoundException;
 import com.dinoryn.worksphere.exception.UnauthorizedOperationException;
 import com.dinoryn.worksphere.mapper.LeaveMapper;
 import com.dinoryn.worksphere.repository.LeaveRequestRepository;
-import com.dinoryn.worksphere.security.CurrentUserService;
 import com.dinoryn.worksphere.service.LeaveService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +28,6 @@ public class LeaveServiceImpl implements LeaveService {
 
     private final LeaveRequestRepository leaveRequestRepository;
     private final LeaveMapper leaveMapper;
-    private final CurrentUserService currentUserService;
 
     @Override
     public LeaveResponse createLeaveRequest(
@@ -164,37 +164,41 @@ public class LeaveServiceImpl implements LeaveService {
     }
 
     @Override
-    public List<LeaveResponse> getAllLeaveRequests(
-            Employee employee
+    @Transactional(readOnly = true)
+    public Page<LeaveResponse> getAllLeaveRequests(
+            Pageable pageable
     ) {
 
-        return leaveRequestRepository.findAll()
-                .stream()
-                .map(leaveMapper::toResponse)
-                .toList();
+        return leaveRequestRepository.findAll(pageable)
+                .map(leaveMapper::toResponse);
     }
 
     @Override
-    public List<LeaveResponse> getMyLeaveRequests(
-            Employee employee
-    ) {
-
-        return leaveRequestRepository.findByEmployeeId(employee.getId())
-                .stream()
-                .map(leaveMapper::toResponse)
-                .toList();
-    }
-
-    @Override
-    public List<LeaveResponse> getLeaveRequestsByStatus(
+    public Page<LeaveResponse> getMyLeaveRequests(
             Employee employee,
-            LeaveStatus status
+            Pageable pageable
     ) {
 
-        return leaveRequestRepository.findByStatus(status)
-                .stream()
-                .map(leaveMapper::toResponse)
-                .toList();
+        return leaveRequestRepository
+                .findByEmployeeId(
+                        employee.getId(),
+                        pageable
+                )
+                .map(leaveMapper::toResponse);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<LeaveResponse> getLeaveRequestsByStatus(
+            LeaveStatus status,
+            Pageable pageable
+    ) {
+
+        return leaveRequestRepository.findByStatus(
+                        status,
+                        pageable
+                )
+                .map(leaveMapper::toResponse);
     }
 
     @Override

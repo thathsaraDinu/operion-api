@@ -8,18 +8,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-public class EmployeeUserDetails implements UserDetails {
-
-    private final Employee employee;
-
-
-    public EmployeeUserDetails(Employee employee){
-        this.employee = employee;
-    }
+public record EmployeeUserDetails(Employee employee) implements UserDetails {
 
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities(){
+    public Collection<? extends GrantedAuthority> getAuthorities() {
 
         return List.of(
                 new SimpleGrantedAuthority(
@@ -30,43 +23,40 @@ public class EmployeeUserDetails implements UserDetails {
 
 
     @Override
-    public String getPassword(){
+    public String getPassword() {
 
         return employee.getPassword();
     }
 
 
     @Override
-    public String getUsername(){
+    public String getUsername() {
 
         return employee.getEmail();
     }
 
 
     @Override
-    public boolean isAccountNonExpired(){
+    public boolean isAccountNonExpired() {
         return true;
     }
 
 
     @Override
-    public boolean isAccountNonLocked(){
+    public boolean isAccountNonLocked() {
         return true;
     }
 
 
     @Override
-    public boolean isCredentialsNonExpired(){
+    public boolean isCredentialsNonExpired() {
         return true;
     }
 
 
     @Override
-    public boolean isEnabled(){
+    public boolean isEnabled() {
         return true;
     }
 
-    public Employee getEmployee() {
-        return employee;
-    }
 }

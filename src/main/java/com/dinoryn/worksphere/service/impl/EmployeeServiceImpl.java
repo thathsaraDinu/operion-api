@@ -13,10 +13,11 @@ import com.dinoryn.worksphere.repository.DepartmentRepository;
 import com.dinoryn.worksphere.repository.EmployeeRepository;
 import com.dinoryn.worksphere.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -59,11 +60,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public List<EmployeeResponse> getAllEmployees() {
-        return employeeRepository.findAll()
-                .stream()
-                .map(employeeMapper::toResponse)
-                .toList();
+    @Transactional(readOnly = true)
+    public Page<EmployeeResponse> getAllEmployees(Pageable pageable) {
+
+        return employeeRepository.findAll(pageable)
+                .map(employeeMapper::toResponse);
     }
 
     @Override

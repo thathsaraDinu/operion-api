@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ProjectMember {
+public class ProjectMember extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,12 +19,18 @@ public class ProjectMember {
 
 
     @ManyToOne
-    @JoinColumn(name = "project_id")
+    @JoinColumn(
+            name = "project_id",
+            nullable = false
+    )
     private Project project;
 
 
     @ManyToOne
-    @JoinColumn(name = "employee_id")
+    @JoinColumn(
+            name = "employee_id",
+            nullable = false
+    )
     private Employee employee;
 
 

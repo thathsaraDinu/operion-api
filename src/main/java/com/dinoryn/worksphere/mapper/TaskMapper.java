@@ -24,6 +24,9 @@ public class TaskMapper {
 
         response.setCreatedDate(task.getCreatedDate());
 
+        response.setCreatedAt(task.getCreatedAt());
+        response.setUpdatedAt(task.getUpdatedAt());
+
 
         response.setProjectId(
                 task.getProject().getId()

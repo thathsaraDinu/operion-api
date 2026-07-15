@@ -6,6 +6,7 @@ import com.dinoryn.worksphere.entity.Employee;
 import com.dinoryn.worksphere.entity.Project;
 import com.dinoryn.worksphere.entity.ProjectMember;
 import com.dinoryn.worksphere.exception.EmployeeNotFoundException;
+import com.dinoryn.worksphere.exception.ProjectMemberNotFoundException;
 import com.dinoryn.worksphere.exception.ProjectNotFoundException;
 import com.dinoryn.worksphere.mapper.ProjectMemberMapper;
 import com.dinoryn.worksphere.repository.EmployeeRepository;
@@ -13,10 +14,11 @@ import com.dinoryn.worksphere.repository.ProjectMemberRepository;
 import com.dinoryn.worksphere.repository.ProjectRepository;
 import com.dinoryn.worksphere.service.ProjectMemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -59,24 +61,42 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
 
 
     @Override
-    public List<ProjectMemberResponse> getProjectMembers(Long projectId) {
+    public Page<ProjectMemberResponse> getProjectMembers(
+            Long projectId,
+            Pageable pageable
+    ) {
 
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+        projectRepository.findById(projectId)
+                .orElseThrow(
+                        () -> new ProjectNotFoundException(projectId)
+                );
 
 
-        return project.getMembers()
-                .stream()
-                .map(projectMemberMapper::toResponse)
-                .toList();
+        return projectMemberRepository
+                .findByProjectId(
+                        projectId,
+                        pageable
+                )
+                .map(projectMemberMapper::toResponse);
     }
 
 
     @Override
-    public void removeMember(Long memberId) {
+    public void removeMember(
+            Long projectId,
+            Long memberId
+    ) {
 
         ProjectMember member = projectMemberRepository.findById(memberId)
-                .orElseThrow();
+                .orElseThrow(
+                        () -> new ProjectMemberNotFoundException(memberId)
+                );
+
+
+        if (!member.getProject().getId().equals(projectId)) {
+            throw new ProjectMemberNotFoundException(memberId);
+        }
+
 
         projectMemberRepository.delete(member);
     }

@@ -18,6 +18,8 @@ public class LeaveMapper {
         response.setReason(leaveRequest.getReason());
         response.setStatus(leaveRequest.getStatus());
         response.setCreatedDate(leaveRequest.getCreatedDate());
+        response.setCreatedAt(leaveRequest.getCreatedAt());
+        response.setUpdatedAt(leaveRequest.getUpdatedAt());
 
         if (leaveRequest.getEmployee() != null) {
 

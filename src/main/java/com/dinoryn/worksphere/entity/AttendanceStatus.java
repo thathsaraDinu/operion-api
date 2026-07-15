@@ -1,4 +1,9 @@
 package com.dinoryn.worksphere.entity;
 
-public class AttendanceStatus {
+public enum AttendanceStatus {
+
+    PRESENT,
+    ABSENT,
+    LATE,
+    HALF_DAY
 }

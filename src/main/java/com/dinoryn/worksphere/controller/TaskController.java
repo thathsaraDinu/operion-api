@@ -7,11 +7,11 @@ import com.dinoryn.worksphere.entity.TaskStatus;
 import com.dinoryn.worksphere.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/tasks")
@@ -32,7 +32,6 @@ public class TaskController {
         );
     }
 
-
     @GetMapping("/{id}")
     public ResponseEntity<TaskResponse> getTask(
             @PathVariable Long id
@@ -43,15 +42,17 @@ public class TaskController {
         );
     }
 
-
     @GetMapping
-    public ResponseEntity<List<TaskResponse>> getAllTasks() {
+    public ResponseEntity<Page<TaskResponse>> getAllTasks(
+            Pageable pageable
+    ) {
 
         return ResponseEntity.ok(
-                taskService.getAllTasks()
+                taskService.getAllTasks(
+                        pageable
+                )
         );
     }
-
 
     @PutMapping("/{id}")
     public ResponseEntity<TaskResponse> updateTask(
@@ -64,7 +65,6 @@ public class TaskController {
         );
     }
 
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(
             @PathVariable Long id
@@ -76,32 +76,44 @@ public class TaskController {
     }
 
     @GetMapping("/project/{projectId}")
-    public ResponseEntity<List<TaskResponse>> getTasksByProject(
-            @PathVariable Long projectId
+    public ResponseEntity<Page<TaskResponse>> getTasksByProject(
+            @PathVariable Long projectId,
+            Pageable pageable
     ) {
 
         return ResponseEntity.ok(
-                taskService.getTasksByProject(projectId)
+                taskService.getTasksByProject(
+                        projectId,
+                        pageable
+                )
         );
     }
 
     @GetMapping("/employee/{EmployeeId}")
-    public ResponseEntity<List<TaskResponse>> getTasksByEmployee(
-            @PathVariable Long EmployeeId
+    public ResponseEntity<Page<TaskResponse>> getTasksByEmployee(
+            @PathVariable Long EmployeeId,
+            Pageable pageable
     ) {
 
         return ResponseEntity.ok(
-                taskService.getTasksByEmployee(EmployeeId)
+                taskService.getTasksByEmployee(
+                        EmployeeId,
+                        pageable
+                )
         );
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<TaskResponse>> getTasksByStatus(
-            @PathVariable TaskStatus status
+    public ResponseEntity<Page<TaskResponse>> getTasksByStatus(
+            @PathVariable TaskStatus status,
+            Pageable pageable
     ) {
 
         return ResponseEntity.ok(
-                taskService.getTasksByStatus(status)
+                taskService.getTasksByStatus(
+                        status,
+                        pageable
+                )
         );
     }
 }

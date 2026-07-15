@@ -13,12 +13,13 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Project {
+public class Project extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
     private String description;

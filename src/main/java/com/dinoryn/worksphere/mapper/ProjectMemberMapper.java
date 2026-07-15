@@ -11,6 +11,8 @@ public class ProjectMemberMapper {
     public ProjectMemberResponse toResponse(ProjectMember member) {
 
         ProjectMemberResponse response = new ProjectMemberResponse();
+        response.setCreatedAt(member.getCreatedAt());
+        response.setUpdatedAt(member.getUpdatedAt());
 
         response.setId(member.getId());
 
