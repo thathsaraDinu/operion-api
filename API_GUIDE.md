@@ -1,8 +1,8 @@
-# WorkSphere API Guide
+# Operion API Guide
 
 ## Overview
 
-WorkSphere is a workforce operations platform API built with Spring Boot. It provides comprehensive employee management, attendance tracking, leave management, project management, and task management capabilities.
+Operion is a workforce operations platform API built with Spring Boot. It provides comprehensive employee management, attendance tracking, leave management, project management, and task management capabilities.
 
 ## Base URL
 
