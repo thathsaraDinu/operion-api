@@ -4,6 +4,11 @@ import com.dinoryn.worksphere.dto.AttendanceResponse;
 import com.dinoryn.worksphere.dto.AttendanceUpdateRequest;
 import com.dinoryn.worksphere.security.EmployeeUserDetails;
 import com.dinoryn.worksphere.service.AttendanceService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,14 +21,21 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/attendance")
 @RequiredArgsConstructor
+@Tag(name = "Attendance Management", description = "Attendance tracking and management endpoints")
 public class AttendanceController {
 
     private final AttendanceService attendanceService;
 
 
     @PostMapping("/clock-in")
+    @Operation(summary = "Clock in", description = "Record clock-in time for the authenticated employee")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Clock-in recorded successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "400", description = "Already clocked in today")
+    })
     public ResponseEntity<AttendanceResponse> clockIn(
-            @AuthenticationPrincipal EmployeeUserDetails user
+            @Parameter(hidden = true) @AuthenticationPrincipal EmployeeUserDetails user
     ) {
 
         return ResponseEntity.ok(
@@ -35,8 +47,14 @@ public class AttendanceController {
 
 
     @PatchMapping("/clock-out")
+    @Operation(summary = "Clock out", description = "Record clock-out time for the authenticated employee")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Clock-out recorded successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "400", description = "Not clocked in or already clocked out")
+    })
     public ResponseEntity<AttendanceResponse> clockOut(
-            @AuthenticationPrincipal EmployeeUserDetails user
+            @Parameter(hidden = true) @AuthenticationPrincipal EmployeeUserDetails user
     ) {
 
         return ResponseEntity.ok(
@@ -48,8 +66,13 @@ public class AttendanceController {
 
 
     @GetMapping("/me")
+    @Operation(summary = "Get my attendance", description = "Retrieve attendance records for the authenticated employee")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Attendance records retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     public ResponseEntity<Page<AttendanceResponse>> getMyAttendance(
-            @AuthenticationPrincipal EmployeeUserDetails user,
+            @Parameter(hidden = true) @AuthenticationPrincipal EmployeeUserDetails user,
             Pageable pageable
     ) {
 
@@ -64,6 +87,11 @@ public class AttendanceController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
     @GetMapping
+    @Operation(summary = "Get all attendance", description = "Retrieve all attendance records (admin/manager view). Requires ADMIN, HR, or MANAGER role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Attendance records retrieved successfully"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions")
+    })
     public ResponseEntity<Page<AttendanceResponse>> getAllAttendance(
             Pageable pageable
     ) {
@@ -78,8 +106,14 @@ public class AttendanceController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
     @GetMapping("/employee/{employeeId}")
+    @Operation(summary = "Get employee attendance", description = "Retrieve attendance records for a specific employee. Requires ADMIN, HR, or MANAGER role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Attendance records retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Employee not found"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions")
+    })
     public ResponseEntity<Page<AttendanceResponse>> getEmployeeAttendance(
-            @PathVariable Long employeeId,
+            @Parameter(description = "Employee ID") @PathVariable Long employeeId,
             Pageable pageable
     ) {
 
@@ -94,8 +128,14 @@ public class AttendanceController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     @PutMapping("/{attendanceId}")
+    @Operation(summary = "Update attendance", description = "Update attendance record (admin/HR only). Requires ADMIN or HR role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Attendance updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Attendance record not found"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions")
+    })
     public ResponseEntity<AttendanceResponse> updateAttendance(
-            @PathVariable Long attendanceId,
+            @Parameter(description = "Attendance record ID") @PathVariable Long attendanceId,
             @Valid @RequestBody AttendanceUpdateRequest request
     ) {
 

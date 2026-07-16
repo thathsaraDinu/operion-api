@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -23,9 +22,21 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private static final String AUTH_PATH = "/auth";
+    private static final String AUTH_HEADER = "Authorization";
+    private static final String BEARER_PREFIX = "Bearer ";
+
     private final JwtService jwtService;
     private final EmployeeUserDetailsService userDetailsService;
     private final ObjectMapper objectMapper;
+
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+
+        return request.getServletPath()
+                .startsWith(AUTH_PATH);
+    }
 
 
     @Override
@@ -36,47 +47,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
 
-        String authHeader = request.getHeader("Authorization");
+        String authHeader = request.getHeader(AUTH_HEADER);
 
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (!hasValidBearerToken(authHeader)) {
             filterChain.doFilter(request, response);
             return;
         }
 
 
-        String jwt = authHeader.substring(7);
+        String jwt = authHeader.substring(BEARER_PREFIX.length());
 
 
         try {
 
-            String username = jwtService.extractUsername(jwt);
-
-
-            if (username != null &&
-                    SecurityContextHolder.getContext()
-                            .getAuthentication() == null) {
-
-
-                UserDetails userDetails =
-                        userDetailsService.loadUserByUsername(username);
-
-
-                if (jwtService.isTokenValid(jwt, userDetails)) {
-
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails,
-                                    null,
-                                    userDetails.getAuthorities()
-                            );
-
-
-                    SecurityContextHolder.getContext()
-                            .setAuthentication(authToken);
-                }
-            }
-
+            authenticateUser(jwt);
 
         } catch (ExpiredJwtException e) {
 
@@ -89,19 +74,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             return;
 
-
-        } catch (UsernameNotFoundException e) {
-
-            sendErrorResponse(
-                    response,
-                    HttpServletResponse.SC_UNAUTHORIZED,
-                    "Unauthorized",
-                    "User associated with token no longer exists"
-            );
-
-            return;
-
-
         } catch (JwtException e) {
 
             sendErrorResponse(
@@ -112,10 +84,61 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             );
 
             return;
+
+        } catch (Exception e) {
+
+            sendErrorResponse(
+                    response,
+                    HttpServletResponse.SC_UNAUTHORIZED,
+                    "Unauthorized",
+                    "Authentication failed"
+            );
+
+            return;
         }
 
 
         filterChain.doFilter(request, response);
+    }
+
+
+    private void authenticateUser(String jwt) {
+
+        String username = jwtService.extractUsername(jwt);
+
+
+        if (username == null ||
+                SecurityContextHolder.getContext()
+                        .getAuthentication() != null) {
+
+            return;
+        }
+
+
+        UserDetails userDetails =
+                userDetailsService.loadUserByUsername(username);
+
+
+        if (jwtService.isTokenValid(jwt, userDetails)) {
+
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+
+
+            SecurityContextHolder.getContext()
+                    .setAuthentication(authentication);
+        }
+    }
+
+
+    private boolean hasValidBearerToken(String authHeader) {
+
+        return authHeader != null &&
+                authHeader.startsWith(BEARER_PREFIX);
     }
 
 
@@ -127,16 +150,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws IOException {
 
 
-        ErrorResponse errorResponse = new ErrorResponse(
-                LocalDateTime.now(),
-                status,
-                error,
-                message
-        );
+        ErrorResponse errorResponse =
+                new ErrorResponse(
+                        LocalDateTime.now(),
+                        status,
+                        error,
+                        message
+                );
 
 
         response.setStatus(status);
         response.setContentType("application/json");
+
 
         response.getWriter()
                 .write(objectMapper.writeValueAsString(errorResponse));

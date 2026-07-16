@@ -7,6 +7,11 @@ import com.dinoryn.worksphere.dto.LeaveUpdateRequest;
 import com.dinoryn.worksphere.entity.LeaveStatus;
 import com.dinoryn.worksphere.security.EmployeeUserDetails;
 import com.dinoryn.worksphere.service.LeaveService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,14 +25,21 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/leaves")
 @RequiredArgsConstructor
+@Tag(name = "Leave Management", description = "Leave request and approval management endpoints")
 public class LeaveController {
 
     private final LeaveService leaveService;
 
 
     @PostMapping
+    @Operation(summary = "Create leave request", description = "Submit a new leave request for the authenticated employee")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Leave request created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request data"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     public ResponseEntity<LeaveResponse> createLeaveRequest(
-            @AuthenticationPrincipal EmployeeUserDetails user,
+            @Parameter(hidden = true) @AuthenticationPrincipal EmployeeUserDetails user,
             @Valid @RequestBody LeaveCreateRequest request
     ) {
 
@@ -43,8 +55,13 @@ public class LeaveController {
 
 
     @GetMapping("/me")
+    @Operation(summary = "Get my leave requests", description = "Retrieve leave requests for the authenticated employee")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Leave requests retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     public ResponseEntity<Page<LeaveResponse>> getMyLeaveRequests(
-            @AuthenticationPrincipal EmployeeUserDetails user,
+            @Parameter(hidden = true) @AuthenticationPrincipal EmployeeUserDetails user,
             Pageable pageable
     ) {
 
@@ -59,9 +76,15 @@ public class LeaveController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
     @GetMapping("/{leaveRequestId:\\d+}")
+    @Operation(summary = "Get leave request by ID", description = "Retrieve a specific leave request by ID. Requires ADMIN, HR, or MANAGER role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Leave request found"),
+            @ApiResponse(responseCode = "404", description = "Leave request not found"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions")
+    })
     public ResponseEntity<LeaveResponse> getLeaveRequestById(
-            @AuthenticationPrincipal EmployeeUserDetails user,
-            @PathVariable Long leaveRequestId
+            @Parameter(hidden = true) @AuthenticationPrincipal EmployeeUserDetails user,
+            @Parameter(description = "Leave request ID") @PathVariable Long leaveRequestId
     ) {
 
         return ResponseEntity.ok(
@@ -75,6 +98,11 @@ public class LeaveController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
     @GetMapping
+    @Operation(summary = "Get all leave requests", description = "Retrieve all leave requests (admin/manager view). Requires ADMIN, HR, or MANAGER role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Leave requests retrieved successfully"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions")
+    })
     public ResponseEntity<Page<LeaveResponse>> getAllLeaveRequests(
             Pageable pageable
     ) {
@@ -87,8 +115,13 @@ public class LeaveController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
     @GetMapping("/status/{status}")
+    @Operation(summary = "Get leave requests by status", description = "Retrieve leave requests filtered by status. Requires ADMIN, HR, or MANAGER role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Leave requests retrieved successfully"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions")
+    })
     public ResponseEntity<Page<LeaveResponse>> getLeaveRequestsByStatus(
-            @PathVariable LeaveStatus status,
+            @Parameter(description = "Leave status (PENDING|APPROVED|REJECTED)") @PathVariable LeaveStatus status,
             Pageable pageable
     ) {
 
@@ -102,9 +135,15 @@ public class LeaveController {
 
 
     @PutMapping("/{leaveRequestId}")
+    @Operation(summary = "Update leave request", description = "Update an existing leave request. Employees can only update their own requests.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Leave request updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Leave request not found"),
+            @ApiResponse(responseCode = "403", description = "Cannot update other's requests or already approved requests")
+    })
     public ResponseEntity<LeaveResponse> updateLeaveRequest(
-            @AuthenticationPrincipal EmployeeUserDetails user,
-            @PathVariable Long leaveRequestId,
+            @Parameter(hidden = true) @AuthenticationPrincipal EmployeeUserDetails user,
+            @Parameter(description = "Leave request ID") @PathVariable Long leaveRequestId,
             @Valid @RequestBody LeaveUpdateRequest request
     ) {
 
@@ -120,9 +159,15 @@ public class LeaveController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
     @PatchMapping("/{leaveRequestId}/approval")
+    @Operation(summary = "Approve/Reject leave request", description = "Approve or reject a leave request. Requires ADMIN, HR, or MANAGER role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Leave request status updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Leave request not found"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions")
+    })
     public ResponseEntity<LeaveResponse> approveLeaveRequest(
-            @AuthenticationPrincipal EmployeeUserDetails user,
-            @PathVariable Long leaveRequestId,
+            @Parameter(hidden = true) @AuthenticationPrincipal EmployeeUserDetails user,
+            @Parameter(description = "Leave request ID") @PathVariable Long leaveRequestId,
             @Valid @RequestBody LeaveApprovalRequest request
     ) {
 
@@ -137,9 +182,15 @@ public class LeaveController {
 
 
     @DeleteMapping("/{leaveRequestId}")
+    @Operation(summary = "Delete leave request", description = "Delete a leave request. Employees can only delete their own pending requests.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Leave request deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Leave request not found"),
+            @ApiResponse(responseCode = "403", description = "Cannot delete other's requests or already processed requests")
+    })
     public ResponseEntity<Void> deleteLeaveRequest(
-            @AuthenticationPrincipal EmployeeUserDetails user,
-            @PathVariable Long leaveRequestId
+            @Parameter(hidden = true) @AuthenticationPrincipal EmployeeUserDetails user,
+            @Parameter(description = "Leave request ID") @PathVariable Long leaveRequestId
     ) {
 
         leaveService.deleteLeaveRequest(

@@ -4,6 +4,11 @@ import com.dinoryn.worksphere.dto.ProjectMemberCreateRequest;
 import com.dinoryn.worksphere.dto.ProjectMemberResponse;
 import com.dinoryn.worksphere.security.EmployeeUserDetails;
 import com.dinoryn.worksphere.service.ProjectMemberService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/projects/{projectId}/members")
 @RequiredArgsConstructor
+@Tag(name = "Project Member Management", description = "Project member assignment and management endpoints")
 public class ProjectMemberController {
 
     private final ProjectMemberService projectMemberService;
@@ -24,9 +30,16 @@ public class ProjectMemberController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
     @PostMapping
+    @Operation(summary = "Add member to project", description = "Add an employee to a project. Requires ADMIN, HR, or MANAGER role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Member added successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request data"),
+            @ApiResponse(responseCode = "404", description = "Project or employee not found"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions")
+    })
     public ResponseEntity<ProjectMemberResponse> addMember(
-            @AuthenticationPrincipal EmployeeUserDetails user,
-            @PathVariable Long projectId,
+            @Parameter(hidden = true) @AuthenticationPrincipal EmployeeUserDetails user,
+            @Parameter(description = "Project ID") @PathVariable Long projectId,
             @Valid @RequestBody ProjectMemberCreateRequest request
     ) {
 
@@ -42,8 +55,14 @@ public class ProjectMemberController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER', 'EMPLOYEE')")
     @GetMapping
+    @Operation(summary = "Get project members", description = "Retrieve all members of a specific project. Accessible by all authenticated users.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Project members retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Project not found"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     public ResponseEntity<Page<ProjectMemberResponse>> getProjectMembers(
-            @PathVariable Long projectId,
+            @Parameter(description = "Project ID") @PathVariable Long projectId,
             Pageable pageable
     ) {
 
@@ -58,9 +77,15 @@ public class ProjectMemberController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
     @DeleteMapping("/{memberId}")
+    @Operation(summary = "Remove member from project", description = "Remove a member from a project. Requires ADMIN, HR, or MANAGER role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Member removed successfully"),
+            @ApiResponse(responseCode = "404", description = "Project or member not found"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions")
+    })
     public ResponseEntity<Void> removeMember(
-            @PathVariable Long projectId,
-            @PathVariable Long memberId
+            @Parameter(description = "Project ID") @PathVariable Long projectId,
+            @Parameter(description = "Project member ID") @PathVariable Long memberId
     ) {
 
         projectMemberService.removeMember(

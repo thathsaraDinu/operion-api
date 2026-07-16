@@ -6,6 +6,11 @@ import com.dinoryn.worksphere.dto.DepartmentUpdateRequest;
 import com.dinoryn.worksphere.dto.EmployeeResponse;
 import com.dinoryn.worksphere.service.DepartmentService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -19,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/departments")
 @RequiredArgsConstructor
+@Tag(name = "Department Management", description = "Department CRUD operations and employee listing")
 public class DepartmentController {
 
     private final DepartmentService departmentService;
@@ -26,6 +32,12 @@ public class DepartmentController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     @PostMapping
+    @Operation(summary = "Create department", description = "Create a new department. Requires ADMIN or HR role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Department created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request data"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions")
+    })
     public ResponseEntity<DepartmentResponse> createDepartment(
             @Valid @RequestBody DepartmentCreateRequest request
     ){
@@ -38,6 +50,11 @@ public class DepartmentController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER', 'EMPLOYEE')")
     @GetMapping
+    @Operation(summary = "Get all departments", description = "Retrieve all departments with pagination. Accessible by all authenticated users.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Departments retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     public ResponseEntity<Page<DepartmentResponse>> getAllDepartments(
             Pageable pageable
     ) {
@@ -50,8 +67,14 @@ public class DepartmentController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER', 'EMPLOYEE')")
     @GetMapping("/{id}")
+    @Operation(summary = "Get department by ID", description = "Retrieve a specific department by ID. Accessible by all authenticated users.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Department found"),
+            @ApiResponse(responseCode = "404", description = "Department not found"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     public ResponseEntity<DepartmentResponse> getDepartmentById(
-            @PathVariable Long id
+            @Parameter(description = "Department ID") @PathVariable Long id
     ){
 
         return ResponseEntity.ok(
@@ -62,8 +85,14 @@ public class DepartmentController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     @PutMapping("/{id}")
+    @Operation(summary = "Update department", description = "Update department information. Requires ADMIN or HR role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Department updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Department not found"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions")
+    })
     public ResponseEntity<DepartmentResponse> updateDepartment(
-            @PathVariable Long id,
+            @Parameter(description = "Department ID") @PathVariable Long id,
             @Valid @RequestBody DepartmentUpdateRequest request
     ){
 
@@ -75,8 +104,14 @@ public class DepartmentController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete department", description = "Delete a department by ID. Requires ADMIN role only.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Department deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Department not found"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions")
+    })
     public ResponseEntity<Void> deleteDepartment(
-            @PathVariable Long id
+            @Parameter(description = "Department ID") @PathVariable Long id
     ){
 
         departmentService.deleteDepartment(id);
@@ -87,8 +122,14 @@ public class DepartmentController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
     @GetMapping("/{id}/employees")
+    @Operation(summary = "Get department employees", description = "Retrieve all employees in a specific department. Requires ADMIN, HR, or MANAGER role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Employees retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Department not found"),
+            @ApiResponse(responseCode = "403", description = "Insufficient permissions")
+    })
     public ResponseEntity<Page<EmployeeResponse>> getDepartmentEmployees(
-            @PathVariable Long id,
+            @Parameter(description = "Department ID") @PathVariable Long id,
             Pageable pageable
     ){
 
