@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +34,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
 
     @Override
+    @Transactional
     public DepartmentResponse saveDepartment(
             DepartmentCreateRequest request
     ){
@@ -48,6 +50,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public Page<DepartmentResponse> getAllDepartments(
             Pageable pageable
     ) {
@@ -70,6 +73,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public DepartmentResponse getDepartmentById(Long id){
 
         Department department =
@@ -83,6 +87,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
 
     @Override
+    @Transactional
     public DepartmentResponse updateDepartment(
             Long id,
             DepartmentUpdateRequest request
@@ -109,6 +114,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
 
     @Override
+    @Transactional
     public void deleteDepartment(Long id){
 
         Department department =
@@ -126,6 +132,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<EmployeeResponse> getEmployeesByDepartment(
             Long departmentId,
             Pageable pageable

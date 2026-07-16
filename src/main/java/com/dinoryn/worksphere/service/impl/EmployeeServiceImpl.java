@@ -29,6 +29,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional
     public EmployeeResponse saveEmployee(EmployeeCreateRequest request) {
 
         Employee employee = employeeMapper.toEntity(request);
@@ -68,6 +69,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EmployeeResponse getEmployeeById(Long id) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new EmployeeNotFoundException(id));
@@ -76,6 +78,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    @Transactional
     public EmployeeResponse updateEmployee(Long id, EmployeeUpdateRequest request) {
 
         Employee employee = employeeRepository.findById(id)
@@ -94,7 +97,9 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
 
         if (request.getPassword() != null) {
-            employee.setPassword(request.getPassword());
+            employee.setPassword(
+                    passwordEncoder.encode(request.getPassword())
+            );
         }
 
         if (request.getRole() != null) {
@@ -123,6 +128,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    @Transactional
     public void deleteEmployee(Long id) {
 
         Employee employee = employeeRepository.findById(id)
@@ -132,6 +138,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    @Transactional
     public EmployeeResponse assignDepartment(
             Long employeeId,
             Long departmentId

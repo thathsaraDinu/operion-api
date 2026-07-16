@@ -14,7 +14,6 @@ public class EmployeeMapper {
         employee.setFirstName(request.getFirstName());
         employee.setLastName(request.getLastName());
         employee.setEmail(request.getEmail());
-        employee.setPassword(request.getPassword());
         employee.setRole(request.getRole());
         employee.setPhone(request.getPhone());
         employee.setAddress(request.getAddress());

@@ -34,6 +34,7 @@ public class TaskServiceImpl implements TaskService {
 
 
     @Override
+    @Transactional
     public TaskResponse createTask(TaskCreateRequest request) {
 
         Project project = projectRepository.findById(request.getProjectId())
@@ -63,6 +64,7 @@ public class TaskServiceImpl implements TaskService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public TaskResponse getTaskById(Long id) {
 
         Task task = taskRepository.findById(id)
@@ -73,6 +75,7 @@ public class TaskServiceImpl implements TaskService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public Page<TaskResponse> getAllTasks(
             Pageable pageable
     ) {
@@ -83,6 +86,7 @@ public class TaskServiceImpl implements TaskService {
 
 
     @Override
+    @Transactional
     public TaskResponse updateTask(Long id, TaskUpdateRequest request) {
 
         Task task = taskRepository.findById(id)
@@ -102,6 +106,7 @@ public class TaskServiceImpl implements TaskService {
 
 
     @Override
+    @Transactional
     public void deleteTask(Long id) {
 
         Task task = taskRepository.findById(id)

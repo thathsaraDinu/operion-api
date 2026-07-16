@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
@@ -31,6 +32,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
 
 
     @Override
+    @Transactional
     public ProjectMemberResponse addMember(
             Long projectId,
             ProjectMemberCreateRequest request
@@ -61,6 +63,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public Page<ProjectMemberResponse> getProjectMembers(
             Long projectId,
             Pageable pageable
@@ -82,6 +85,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
 
 
     @Override
+    @Transactional
     public void removeMember(
             Long projectId,
             Long memberId

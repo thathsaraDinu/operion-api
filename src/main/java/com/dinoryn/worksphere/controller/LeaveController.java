@@ -56,6 +56,7 @@ public class LeaveController {
         );
     }
 
+
     @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
     @GetMapping("/{leaveRequestId:\\d+}")
     public ResponseEntity<LeaveResponse> getLeaveRequestById(
@@ -79,9 +80,7 @@ public class LeaveController {
     ) {
 
         return ResponseEntity.ok(
-                leaveService.getAllLeaveRequests(
-                        pageable
-                )
+                leaveService.getAllLeaveRequests(pageable)
         );
     }
 

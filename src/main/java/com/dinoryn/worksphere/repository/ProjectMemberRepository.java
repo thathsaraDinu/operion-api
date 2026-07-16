@@ -1,6 +1,7 @@
 package com.dinoryn.worksphere.repository;
 
 import com.dinoryn.worksphere.entity.ProjectMember;
+import com.dinoryn.worksphere.entity.ProjectRole;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,5 +13,4 @@ public interface ProjectMemberRepository
             Long projectId,
             Pageable pageable
     );
-
 }

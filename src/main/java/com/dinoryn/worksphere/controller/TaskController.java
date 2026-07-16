@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,6 +22,7 @@ public class TaskController {
     private final TaskService taskService;
 
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
     @PostMapping
     public ResponseEntity<TaskResponse> createTask(
             @Valid @RequestBody TaskCreateRequest request
@@ -32,6 +34,8 @@ public class TaskController {
         );
     }
 
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER', 'EMPLOYEE')")
     @GetMapping("/{id}")
     public ResponseEntity<TaskResponse> getTask(
             @PathVariable Long id
@@ -42,18 +46,20 @@ public class TaskController {
         );
     }
 
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
     @GetMapping
     public ResponseEntity<Page<TaskResponse>> getAllTasks(
             Pageable pageable
     ) {
 
         return ResponseEntity.ok(
-                taskService.getAllTasks(
-                        pageable
-                )
+                taskService.getAllTasks(pageable)
         );
     }
 
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
     @PutMapping("/{id}")
     public ResponseEntity<TaskResponse> updateTask(
             @PathVariable Long id,
@@ -65,6 +71,8 @@ public class TaskController {
         );
     }
 
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(
             @PathVariable Long id
@@ -75,6 +83,8 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER', 'EMPLOYEE')")
     @GetMapping("/project/{projectId}")
     public ResponseEntity<Page<TaskResponse>> getTasksByProject(
             @PathVariable Long projectId,
@@ -89,20 +99,24 @@ public class TaskController {
         );
     }
 
-    @GetMapping("/employee/{EmployeeId}")
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
+    @GetMapping("/employee/{employeeId}")
     public ResponseEntity<Page<TaskResponse>> getTasksByEmployee(
-            @PathVariable Long EmployeeId,
+            @PathVariable Long employeeId,
             Pageable pageable
     ) {
 
         return ResponseEntity.ok(
                 taskService.getTasksByEmployee(
-                        EmployeeId,
+                        employeeId,
                         pageable
                 )
         );
     }
 
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
     @GetMapping("/status/{status}")
     public ResponseEntity<Page<TaskResponse>> getTasksByStatus(
             @PathVariable TaskStatus status,

@@ -23,6 +23,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 
     @Override
+    @Transactional
     public ProjectResponse createProject(ProjectCreateRequest request) {
 
         Project project = projectMapper.toEntity(request);
@@ -34,6 +35,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public ProjectResponse getProjectById(Long id) {
 
         Project project = projectRepository.findById(id)
@@ -55,6 +57,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 
     @Override
+    @Transactional
     public ProjectResponse updateProject(Long id, ProjectUpdateRequest request) {
 
         Project project = projectRepository.findById(id)
@@ -89,6 +92,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 
     @Override
+    @Transactional
     public void deleteProject(Long id) {
 
         Project project = projectRepository.findById(id)

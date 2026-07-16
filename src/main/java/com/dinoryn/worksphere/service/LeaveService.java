@@ -9,7 +9,6 @@ import com.dinoryn.worksphere.entity.LeaveStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-
 public interface LeaveService {
 
     LeaveResponse createLeaveRequest(
@@ -17,32 +16,43 @@ public interface LeaveService {
             LeaveCreateRequest request
     );
 
+
     LeaveResponse updateLeaveRequest(
-            Employee employee, Long leaveRequestId,
+            Employee employee,
+            Long leaveRequestId,
             LeaveUpdateRequest request
     );
 
+
     LeaveResponse approveLeaveRequest(
-            Employee employee,
+            Employee approvalUser,
             Long leaveRequestId,
             LeaveApprovalRequest request
     );
 
-    LeaveResponse getLeaveRequestById(Employee employee, Long leaveRequestId);
+
+    LeaveResponse getLeaveRequestById(
+            Employee currentUser,
+            Long leaveRequestId
+    );
+
 
     Page<LeaveResponse> getAllLeaveRequests(
             Pageable pageable
     );
+
 
     Page<LeaveResponse> getMyLeaveRequests(
             Employee employee,
             Pageable pageable
     );
 
+
     Page<LeaveResponse> getLeaveRequestsByStatus(
             LeaveStatus status,
             Pageable pageable
     );
+
 
     void deleteLeaveRequest(
             Employee employee,

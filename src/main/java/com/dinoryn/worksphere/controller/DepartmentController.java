@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,37 +21,34 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class DepartmentController {
 
-
     private final DepartmentService departmentService;
 
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     @PostMapping
     public ResponseEntity<DepartmentResponse> createDepartment(
             @Valid @RequestBody DepartmentCreateRequest request
     ){
 
-        DepartmentResponse response =
-                departmentService.saveDepartment(request);
-
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(response);
+                .body(departmentService.saveDepartment(request));
     }
 
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER', 'EMPLOYEE')")
     @GetMapping
     public ResponseEntity<Page<DepartmentResponse>> getAllDepartments(
             Pageable pageable
     ) {
 
         return ResponseEntity.ok(
-                departmentService.getAllDepartments(
-                        pageable
-                )
+                departmentService.getAllDepartments(pageable)
         );
     }
 
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER', 'EMPLOYEE')")
     @GetMapping("/{id}")
     public ResponseEntity<DepartmentResponse> getDepartmentById(
             @PathVariable Long id
@@ -62,6 +60,7 @@ public class DepartmentController {
     }
 
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     @PutMapping("/{id}")
     public ResponseEntity<DepartmentResponse> updateDepartment(
             @PathVariable Long id,
@@ -74,6 +73,7 @@ public class DepartmentController {
     }
 
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDepartment(
             @PathVariable Long id
@@ -84,6 +84,8 @@ public class DepartmentController {
         return ResponseEntity.noContent().build();
     }
 
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
     @GetMapping("/{id}/employees")
     public ResponseEntity<Page<EmployeeResponse>> getDepartmentEmployees(
             @PathVariable Long id,

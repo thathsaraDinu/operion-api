@@ -7,7 +7,6 @@ import com.dinoryn.worksphere.dto.LeaveUpdateRequest;
 import com.dinoryn.worksphere.entity.Employee;
 import com.dinoryn.worksphere.entity.LeaveRequest;
 import com.dinoryn.worksphere.entity.LeaveStatus;
-import com.dinoryn.worksphere.entity.Role;
 import com.dinoryn.worksphere.exception.InvalidLeaveRequestException;
 import com.dinoryn.worksphere.exception.LeaveRequestNotFoundException;
 import com.dinoryn.worksphere.exception.UnauthorizedOperationException;
@@ -29,7 +28,9 @@ public class LeaveServiceImpl implements LeaveService {
     private final LeaveRequestRepository leaveRequestRepository;
     private final LeaveMapper leaveMapper;
 
+
     @Override
+    @Transactional
     public LeaveResponse createLeaveRequest(
             Employee employee,
             LeaveCreateRequest request
@@ -57,9 +58,11 @@ public class LeaveServiceImpl implements LeaveService {
         );
     }
 
+
     @Override
+    @Transactional
     public LeaveResponse updateLeaveRequest(
-            Employee employee,
+            Employee currentUser,
             Long leaveRequestId,
             LeaveUpdateRequest request
     ) {
@@ -69,11 +72,14 @@ public class LeaveServiceImpl implements LeaveService {
                         .orElseThrow(() ->
                                 new LeaveRequestNotFoundException(leaveRequestId));
 
-        if (!leaveRequest.getEmployee().getId()
-                .equals(employee.getId())) {
+
+        if (!leaveRequest.getEmployee()
+                .getId()
+                .equals(currentUser.getId())) {
 
             throw new UnauthorizedOperationException();
         }
+
 
         if (leaveRequest.getStatus() != LeaveStatus.PENDING) {
 
@@ -81,6 +87,7 @@ public class LeaveServiceImpl implements LeaveService {
                     "Only pending leave requests can be updated."
             );
         }
+
 
         if (request.getEndDate()
                 .isBefore(request.getStartDate())) {
@@ -90,20 +97,23 @@ public class LeaveServiceImpl implements LeaveService {
             );
         }
 
+
         leaveRequest.setLeaveType(request.getLeaveType());
         leaveRequest.setStartDate(request.getStartDate());
         leaveRequest.setEndDate(request.getEndDate());
         leaveRequest.setReason(request.getReason());
 
-        LeaveRequest updatedLeaveRequest =
-                leaveRequestRepository.save(leaveRequest);
 
-        return leaveMapper.toResponse(updatedLeaveRequest);
+        return leaveMapper.toResponse(
+                leaveRequestRepository.save(leaveRequest)
+        );
     }
 
+
     @Override
+    @Transactional
     public LeaveResponse approveLeaveRequest(
-            Employee employee,
+            Employee approvalUser,
             Long leaveRequestId,
             LeaveApprovalRequest request
     ) {
@@ -113,12 +123,14 @@ public class LeaveServiceImpl implements LeaveService {
                         .orElseThrow(() ->
                                 new LeaveRequestNotFoundException(leaveRequestId));
 
+
         if (leaveRequest.getStatus() != LeaveStatus.PENDING) {
 
             throw new InvalidLeaveRequestException(
                     "Only pending leave requests can be approved or rejected."
             );
         }
+
 
         if (request.getStatus() == LeaveStatus.PENDING) {
 
@@ -127,41 +139,50 @@ public class LeaveServiceImpl implements LeaveService {
             );
         }
 
+
         leaveRequest.setStatus(request.getStatus());
+        leaveRequest.setApprovedBy(approvalUser);
 
-        leaveRequest.setApprovedBy(employee);
 
-        LeaveRequest savedLeaveRequest =
-                leaveRequestRepository.save(leaveRequest);
-
-        return leaveMapper.toResponse(savedLeaveRequest);
+        return leaveMapper.toResponse(
+                leaveRequestRepository.save(leaveRequest)
+        );
     }
 
+
     @Override
+    @Transactional(readOnly = true)
     public LeaveResponse getLeaveRequestById(
-            Employee employee,
+            Employee currentUser,
             Long leaveRequestId
     ) {
 
-        LeaveRequest leaveRequest = leaveRequestRepository.findById(leaveRequestId)
-                .orElseThrow(() ->
-                        new LeaveRequestNotFoundException(leaveRequestId));
+        LeaveRequest leaveRequest =
+                leaveRequestRepository.findById(leaveRequestId)
+                        .orElseThrow(() ->
+                                new LeaveRequestNotFoundException(leaveRequestId));
 
-        boolean isOwner = leaveRequest.getEmployee()
-                .getId()
-                .equals(employee.getId());
 
-        boolean hasElevatedRole =
-                employee.getRole() == Role.ADMIN
-                        || employee.getRole() == Role.HR
-                        || employee.getRole() == Role.MANAGER;
+        boolean isOwner =
+                leaveRequest.getEmployee()
+                        .getId()
+                        .equals(currentUser.getId());
 
-        if (!isOwner && !hasElevatedRole) {
+
+        boolean canViewAll =
+                currentUser.getRole().name().equals("ADMIN")
+                        || currentUser.getRole().name().equals("HR")
+                        || currentUser.getRole().name().equals("MANAGER");
+
+
+        if (!isOwner && !canViewAll) {
             throw new UnauthorizedOperationException();
         }
 
+
         return leaveMapper.toResponse(leaveRequest);
     }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -173,7 +194,9 @@ public class LeaveServiceImpl implements LeaveService {
                 .map(leaveMapper::toResponse);
     }
 
+
     @Override
+    @Transactional(readOnly = true)
     public Page<LeaveResponse> getMyLeaveRequests(
             Employee employee,
             Pageable pageable
@@ -187,6 +210,7 @@ public class LeaveServiceImpl implements LeaveService {
                 .map(leaveMapper::toResponse);
     }
 
+
     @Override
     @Transactional(readOnly = true)
     public Page<LeaveResponse> getLeaveRequestsByStatus(
@@ -194,35 +218,36 @@ public class LeaveServiceImpl implements LeaveService {
             Pageable pageable
     ) {
 
-        return leaveRequestRepository.findByStatus(
-                        status,
-                        pageable
-                )
+        return leaveRequestRepository
+                .findByStatus(status, pageable)
                 .map(leaveMapper::toResponse);
     }
 
+
     @Override
+    @Transactional
     public void deleteLeaveRequest(
             Employee employee,
             Long leaveRequestId
     ) {
 
-        LeaveRequest leaveRequest = leaveRequestRepository.findById(leaveRequestId)
-                .orElseThrow(() ->
-                        new LeaveRequestNotFoundException(leaveRequestId));
+        LeaveRequest leaveRequest =
+                leaveRequestRepository
+                        .findByIdAndEmployeeId(
+                                leaveRequestId,
+                                employee.getId()
+                        )
+                        .orElseThrow(() ->
+                                new LeaveRequestNotFoundException(leaveRequestId));
 
-        if (!leaveRequest.getEmployee().getId().equals(employee.getId())) {
-            throw new UnauthorizedOperationException();
-        }
 
         if (leaveRequest.getStatus() != LeaveStatus.PENDING) {
+
             throw new InvalidLeaveRequestException(
                     "Only pending leave requests can be deleted."
             );
         }
-
+        
         leaveRequestRepository.delete(leaveRequest);
     }
-
-    // ...
 }

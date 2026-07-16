@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, Long> {
 
     Page<LeaveRequest> findByEmployeeId(
@@ -18,4 +20,8 @@ public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, Long
             Pageable pageable
     );
 
+    Optional<LeaveRequest> findByIdAndEmployeeId(
+            Long leaveRequestId,
+            Long employeeId
+    );
 }
