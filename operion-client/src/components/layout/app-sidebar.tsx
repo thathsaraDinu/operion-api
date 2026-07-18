@@ -9,8 +9,8 @@ import {
   ListChecks,
   UserCircle,
   LogOut,
-  Flame,
 } from "lucide-react";
+import favicon from "@/../public/favicon.png";
 import {
   Sidebar,
   SidebarContent,
@@ -61,8 +61,14 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border/60">
         <div className="flex items-center gap-2.5 px-2 py-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sunset-gradient text-white shadow-ember">
-            <Flame className="h-4 w-4" strokeWidth={2.4} />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/90 shadow-ember dark:bg-white/10">
+            <img
+              src={favicon}
+              alt="Operion"
+              className="h-6 w-6"
+              width={36}
+              height={36}
+            />
           </div>
           <div className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
             <span className="text-sm font-bold tracking-tight text-sidebar-foreground">

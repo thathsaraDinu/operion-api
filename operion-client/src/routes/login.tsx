@@ -9,14 +9,13 @@ import {
   ArrowRight,
   CalendarClock,
   CalendarOff,
-  Flame,
   FolderKanban,
   ListChecks,
   ShieldCheck,
   Sparkles,
   Users,
 } from "lucide-react";
-
+import favicon from "@/../public/favicon.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -77,8 +76,8 @@ function LoginPage() {
         {/* Hero panel */}
         <div className="hidden flex-col justify-between p-10 lg:flex xl:p-14">
           <div className="flex items-center gap-3">
-            <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-sunset-gradient text-white shadow-ember">
-              <Flame className="h-5 w-5" strokeWidth={2.4} />
+            <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-white/90 shadow-ember dark:bg-white/10">
+              <img src={favicon} alt="Operion" className="h-8 w-8" width={48} height={48} />
             </div>
             <div>
               <div className="text-xl font-bold tracking-tight">Operion</div>
@@ -132,8 +131,8 @@ function LoginPage() {
         <div className="flex items-center justify-center px-5 py-10 sm:px-8">
           <div className="w-full max-w-md">
             <div className="mb-8 flex items-center gap-3 lg:hidden">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sunset-gradient text-white shadow-ember">
-                <Flame className="h-5 w-5" />
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/90 shadow-ember dark:bg-white/10">
+                <img src={favicon} alt="Operion" className="h-8 w-8" width={48} height={48} />
               </div>
               <div>
                 <div className="text-lg font-bold">Operion</div>

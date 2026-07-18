@@ -18,6 +18,7 @@ import {
   CheckCircle2,
   ListChecks,
   Filter,
+  UserCheck,
 } from "lucide-react";
 
 import { PageHeader } from "@/components/common/page-header";
@@ -151,6 +152,15 @@ function TasksPage() {
     enabled: projectFilter !== "ALL",
   });
 
+  // Fetch user's assigned tasks for assignment indicator
+  const myTasksQ = useQuery({
+    queryKey: ["tasks", "my", user?.id],
+    queryFn: () => tasksApi.byEmployee(user!.id, { size: 200 }),
+    enabled: !!user && canReadAll,
+  });
+
+  const myTaskIds = new Set(myTasksQ.data?.content.map((t) => t.id) ?? []);
+
   const isLoading =
     (canReadAll && projectFilter === "ALL" ? allTasksQ.isLoading : projTasksQ.isLoading) ||
     projectsQ.isLoading;
@@ -235,10 +245,9 @@ function TasksPage() {
           <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-sunset-gradient text-white shadow-ember">
             <FolderKanban className="h-5 w-5" />
           </div>
-          <h3 className="text-lg font-semibold">Pick a project to see its tasks</h3>
+          <h3 className="text-lg font-semibold">Select a project to view tasks</h3>
           <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
-            As {user?.role}, you view tasks scoped to a specific project. Choose one from
-            the filter above to load its board.
+            Choose a project from the filter above to load its task board.
           </p>
         </div>
       ) : isLoading ? (
@@ -285,34 +294,41 @@ function TasksPage() {
                       >
                         <div className="flex items-start justify-between gap-2">
                           <h4 className="text-sm font-semibold leading-snug">{t.title}</h4>
-                          {canUpdate || canDelete ? (
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-7 w-7 opacity-0 transition group-hover:opacity-100"
-                                >
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                {canUpdate ? (
-                                  <DropdownMenuItem onClick={() => setEditing(t)}>
-                                    <Pencil className="h-4 w-4" /> Edit
-                                  </DropdownMenuItem>
-                                ) : null}
-                                {canDelete ? (
-                                  <DropdownMenuItem
-                                    className="text-destructive focus:text-destructive"
-                                    onClick={() => setDeleting(t)}
+                          <div className="flex items-center gap-1">
+                            {canReadAll && myTaskIds.has(t.id) && (
+                              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary" title="Assigned to you">
+                                <UserCheck className="h-3 w-3" />
+                              </div>
+                            )}
+                            {canUpdate || canDelete ? (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-7 w-7 opacity-0 transition group-hover:opacity-100"
                                   >
-                                    <Trash2 className="h-4 w-4" /> Delete
-                                  </DropdownMenuItem>
-                                ) : null}
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          ) : null}
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  {canUpdate ? (
+                                    <DropdownMenuItem onClick={() => setEditing(t)}>
+                                      <Pencil className="h-4 w-4" /> Edit
+                                    </DropdownMenuItem>
+                                  ) : null}
+                                  {canDelete ? (
+                                    <DropdownMenuItem
+                                      className="text-destructive focus:text-destructive"
+                                      onClick={() => setDeleting(t)}
+                                    >
+                                      <Trash2 className="h-4 w-4" /> Delete
+                                    </DropdownMenuItem>
+                                  ) : null}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            ) : null}
+                          </div>
                         </div>
                         {t.description ? (
                           <p className="mt-1.5 line-clamp-2 text-xs text-muted-foreground">
@@ -366,11 +382,6 @@ function TasksPage() {
               {statusMeta[s].label} · {byStatus[s].length}
             </span>
           ))}
-          {user ? (
-            <span className="ml-auto inline-flex items-center gap-1.5">
-              <User2 className="h-3.5 w-3.5" /> Signed in as {user.role}
-            </span>
-          ) : null}
         </div>
       ) : null}
 

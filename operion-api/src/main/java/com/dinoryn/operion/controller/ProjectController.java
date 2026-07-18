@@ -66,6 +66,24 @@ public class ProjectController {
 
 
     @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER', 'EMPLOYEE')")
+    @GetMapping("/employee/{employeeId}")
+    @Operation(summary = "Get projects by employee", description = "Retrieve all projects assigned to a specific employee. Accessible by all authenticated users.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Projects retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
+    public ResponseEntity<ApiResponseBody<Page<ProjectResponse>>> getProjectsByEmployee(
+            @Parameter(description = "Employee ID") @PathVariable Long employeeId,
+            Pageable pageable
+    ) {
+
+        return ResponseEntity.ok(
+                ApiResponseBody.success(projectService.getProjectsByEmployee(employeeId, pageable))
+        );
+    }
+
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER', 'EMPLOYEE')")
     @GetMapping
     @Operation(summary = "Get all projects", description = "Retrieve all projects with pagination. Accessible by all authenticated users.")
     @ApiResponses(value = {

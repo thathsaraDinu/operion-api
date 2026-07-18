@@ -4,8 +4,10 @@ import com.dinoryn.operion.dto.ProjectCreateRequest;
 import com.dinoryn.operion.dto.ProjectResponse;
 import com.dinoryn.operion.dto.ProjectUpdateRequest;
 import com.dinoryn.operion.entity.Project;
+import com.dinoryn.operion.entity.ProjectMember;
 import com.dinoryn.operion.exception.ProjectNotFoundException;
 import com.dinoryn.operion.mapper.ProjectMapper;
+import com.dinoryn.operion.repository.ProjectMemberRepository;
 import com.dinoryn.operion.repository.ProjectRepository;
 import com.dinoryn.operion.service.ProjectService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final ProjectMemberRepository projectMemberRepository;
     private final ProjectMapper projectMapper;
 
 
@@ -53,6 +56,19 @@ public class ProjectServiceImpl implements ProjectService {
 
         return projectRepository.findAll(pageable)
                 .map(projectMapper::toResponse);
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProjectResponse> getProjectsByEmployee(
+            Long employeeId,
+            Pageable pageable
+    ) {
+
+        Page<ProjectMember> projectMembers = projectMemberRepository.findByEmployeeId(employeeId, pageable);
+
+        return projectMembers.map(pm -> projectMapper.toResponse(pm.getProject()));
     }
 
 

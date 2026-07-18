@@ -12,4 +12,9 @@ public interface ProjectMemberRepository
             Long projectId,
             Pageable pageable
     );
+
+    Page<ProjectMember> findByEmployeeId(
+            Long employeeId,
+            Pageable pageable
+    );
 }

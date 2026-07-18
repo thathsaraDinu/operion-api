@@ -15,6 +15,8 @@ public interface ProjectService {
 
     Page<ProjectResponse> getAllProjects(Pageable pageable);
 
+    Page<ProjectResponse> getProjectsByEmployee(Long employeeId, Pageable pageable);
+
     ProjectResponse updateProject(Long id, ProjectUpdateRequest request);
 
     void deleteProject(Long id);

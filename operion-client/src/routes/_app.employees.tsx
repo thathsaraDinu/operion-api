@@ -89,18 +89,17 @@ function EmployeesPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Employees"
-        description="Manage employee records across your organization."
-        actions={
-          <RoleGate roles={["ADMIN", "HR"]}>
+    <RoleGate roles={["ADMIN", "HR"]}>
+      <div className="space-y-6">
+        <PageHeader
+          title="Employees"
+          description="Manage employee records across your organization."
+          actions={
             <Button onClick={() => setOpenCreate(true)}>
               <Plus className="h-4 w-4" /> New employee
             </Button>
-          </RoleGate>
-        }
-      />
+          }
+        />
 
       {query.isLoading ? (
         <LoadingBlock />
@@ -178,6 +177,7 @@ function EmployeesPage() {
       <EditDialog employee={editing} onOpenChange={(v) => !v && setEditing(null)} />
       <DeleteDialog employee={deleting} onOpenChange={(v) => !v && setDeleting(null)} />
     </div>
+    </RoleGate>
   );
 }
 

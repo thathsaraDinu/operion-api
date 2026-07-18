@@ -25,6 +25,8 @@ export const projectsApi = {
     apiClient.post<Project>("/api/projects", payload).then((r) => r.data),
   list: (p?: PageParams) =>
     apiClient.get<Page<Project>>("/api/projects", qp(p)).then((r) => r.data),
+  byEmployee: (employeeId: number, p?: PageParams) =>
+    apiClient.get<Page<Project>>(`/api/projects/employee/${employeeId}`, qp(p)).then((r) => r.data),
   get: (id: number) => apiClient.get<Project>(`/api/projects/${id}`).then((r) => r.data),
   update: (id: number, payload: Partial<ProjectCreatePayload>) =>
     apiClient.put<Project>(`/api/projects/${id}`, payload).then((r) => r.data),

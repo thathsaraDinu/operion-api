@@ -328,58 +328,38 @@ function DashboardPage() {
         </Card>
       </section>
 
-      {/* Role callout */}
-      {user ? (
-        <section className="grid gap-4 md:grid-cols-3">
-          <div className="md:col-span-2 rounded-2xl border border-border/60 bg-card p-6">
-            <div className="flex items-start gap-4">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sunset-gradient text-white shadow-ember">
-                <ShieldCheck className="h-5 w-5" />
-              </div>
-              <div>
-                <div className="text-sm font-semibold">
-                  Signed in as {ROLE_LABEL[user.role]}
-                </div>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Your role controls what you can see and change. Actions you're not
-                  allowed to perform are hidden automatically.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="rounded-2xl border border-border/60 bg-card p-6">
-            <div className="flex items-center gap-2 text-sm font-semibold">
-              <TrendingUp className="h-4 w-4 text-primary" /> Quick jump
-            </div>
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              <Link
-                to="/projects"
-                className="rounded-lg border border-border/60 px-3 py-2 text-xs font-medium hover:border-primary/40 hover:bg-accent"
-              >
-                Projects
-              </Link>
-              <Link
-                to="/tasks"
-                className="rounded-lg border border-border/60 px-3 py-2 text-xs font-medium hover:border-primary/40 hover:bg-accent"
-              >
-                Tasks
-              </Link>
-              <Link
-                to="/departments"
-                className="rounded-lg border border-border/60 px-3 py-2 text-xs font-medium hover:border-primary/40 hover:bg-accent"
-              >
-                Departments
-              </Link>
-              <Link
-                to="/change-password"
-                className="rounded-lg border border-border/60 px-3 py-2 text-xs font-medium hover:border-primary/40 hover:bg-accent"
-              >
-                Change password
-              </Link>
-            </div>
-          </div>
-        </section>
-      ) : null}
+      {/* Quick jump */}
+      <section className="rounded-2xl border border-border/60 bg-card p-6">
+        <div className="flex items-center gap-2 text-sm font-semibold">
+          <TrendingUp className="h-4 w-4 text-primary" /> Quick jump
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <Link
+            to="/projects"
+            className="rounded-lg border border-border/60 px-3 py-2 text-xs font-medium hover:border-primary/40 hover:bg-accent"
+          >
+            Projects
+          </Link>
+          <Link
+            to="/tasks"
+            className="rounded-lg border border-border/60 px-3 py-2 text-xs font-medium hover:border-primary/40 hover:bg-accent"
+          >
+            Tasks
+          </Link>
+          <Link
+            to="/departments"
+            className="rounded-lg border border-border/60 px-3 py-2 text-xs font-medium hover:border-primary/40 hover:bg-accent"
+          >
+            Departments
+          </Link>
+          <Link
+            to="/profile"
+            className="rounded-lg border border-border/60 px-3 py-2 text-xs font-medium hover:border-primary/40 hover:bg-accent"
+          >
+            Profile
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

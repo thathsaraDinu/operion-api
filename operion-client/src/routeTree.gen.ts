@@ -17,13 +17,13 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppTasksRouteImport } from './routes/_app.tasks'
 import { Route as AppProjectsRouteImport } from './routes/_app.projects'
+import { Route as AppProjectDetailRouteImport } from './routes/_app.project-detail'
 import { Route as AppProfileRouteImport } from './routes/_app.profile'
 import { Route as AppLeavesRouteImport } from './routes/_app.leaves'
 import { Route as AppEmployeesRouteImport } from './routes/_app.employees'
 import { Route as AppDepartmentsRouteImport } from './routes/_app.departments'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppAttendanceRouteImport } from './routes/_app.attendance'
-import { Route as AppProjectsProjectIdRouteImport } from './routes/_app.projects.$projectId'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -64,6 +64,11 @@ const AppProjectsRoute = AppProjectsRouteImport.update({
   path: '/projects',
   getParentRoute: () => AppRoute,
 } as any)
+const AppProjectDetailRoute = AppProjectDetailRouteImport.update({
+  id: '/project-detail',
+  path: '/project-detail',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppProfileRoute = AppProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -94,11 +99,6 @@ const AppAttendanceRoute = AppAttendanceRouteImport.update({
   path: '/attendance',
   getParentRoute: () => AppRoute,
 } as any)
-const AppProjectsProjectIdRoute = AppProjectsProjectIdRouteImport.update({
-  id: '/$projectId',
-  path: '/$projectId',
-  getParentRoute: () => AppProjectsRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -112,9 +112,9 @@ export interface FileRoutesByFullPath {
   '/employees': typeof AppEmployeesRoute
   '/leaves': typeof AppLeavesRoute
   '/profile': typeof AppProfileRoute
-  '/projects': typeof AppProjectsRouteWithChildren
+  '/project-detail': typeof AppProjectDetailRoute
+  '/projects': typeof AppProjectsRoute
   '/tasks': typeof AppTasksRoute
-  '/projects/$projectId': typeof AppProjectsProjectIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -128,9 +128,9 @@ export interface FileRoutesByTo {
   '/employees': typeof AppEmployeesRoute
   '/leaves': typeof AppLeavesRoute
   '/profile': typeof AppProfileRoute
-  '/projects': typeof AppProjectsRouteWithChildren
+  '/project-detail': typeof AppProjectDetailRoute
+  '/projects': typeof AppProjectsRoute
   '/tasks': typeof AppTasksRoute
-  '/projects/$projectId': typeof AppProjectsProjectIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -146,9 +146,9 @@ export interface FileRoutesById {
   '/_app/employees': typeof AppEmployeesRoute
   '/_app/leaves': typeof AppLeavesRoute
   '/_app/profile': typeof AppProfileRoute
-  '/_app/projects': typeof AppProjectsRouteWithChildren
+  '/_app/project-detail': typeof AppProjectDetailRoute
+  '/_app/projects': typeof AppProjectsRoute
   '/_app/tasks': typeof AppTasksRoute
-  '/_app/projects/$projectId': typeof AppProjectsProjectIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -164,9 +164,9 @@ export interface FileRouteTypes {
     | '/employees'
     | '/leaves'
     | '/profile'
+    | '/project-detail'
     | '/projects'
     | '/tasks'
-    | '/projects/$projectId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -180,9 +180,9 @@ export interface FileRouteTypes {
     | '/employees'
     | '/leaves'
     | '/profile'
+    | '/project-detail'
     | '/projects'
     | '/tasks'
-    | '/projects/$projectId'
   id:
     | '__root__'
     | '/'
@@ -197,9 +197,9 @@ export interface FileRouteTypes {
     | '/_app/employees'
     | '/_app/leaves'
     | '/_app/profile'
+    | '/_app/project-detail'
     | '/_app/projects'
     | '/_app/tasks'
-    | '/_app/projects/$projectId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -269,6 +269,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProjectsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/project-detail': {
+      id: '/_app/project-detail'
+      path: '/project-detail'
+      fullPath: '/project-detail'
+      preLoaderRoute: typeof AppProjectDetailRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/profile': {
       id: '/_app/profile'
       path: '/profile'
@@ -311,27 +318,8 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAttendanceRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/projects/$projectId': {
-      id: '/_app/projects/$projectId'
-      path: '/$projectId'
-      fullPath: '/projects/$projectId'
-      preLoaderRoute: typeof AppProjectsProjectIdRouteImport
-      parentRoute: typeof AppProjectsRoute
-    }
   }
 }
-
-interface AppProjectsRouteChildren {
-  AppProjectsProjectIdRoute: typeof AppProjectsProjectIdRoute
-}
-
-const AppProjectsRouteChildren: AppProjectsRouteChildren = {
-  AppProjectsProjectIdRoute: AppProjectsProjectIdRoute,
-}
-
-const AppProjectsRouteWithChildren = AppProjectsRoute._addFileChildren(
-  AppProjectsRouteChildren,
-)
 
 interface AppRouteChildren {
   AppAttendanceRoute: typeof AppAttendanceRoute
@@ -340,7 +328,8 @@ interface AppRouteChildren {
   AppEmployeesRoute: typeof AppEmployeesRoute
   AppLeavesRoute: typeof AppLeavesRoute
   AppProfileRoute: typeof AppProfileRoute
-  AppProjectsRoute: typeof AppProjectsRouteWithChildren
+  AppProjectDetailRoute: typeof AppProjectDetailRoute
+  AppProjectsRoute: typeof AppProjectsRoute
   AppTasksRoute: typeof AppTasksRoute
 }
 
@@ -351,7 +340,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppEmployeesRoute: AppEmployeesRoute,
   AppLeavesRoute: AppLeavesRoute,
   AppProfileRoute: AppProfileRoute,
-  AppProjectsRoute: AppProjectsRouteWithChildren,
+  AppProjectDetailRoute: AppProjectDetailRoute,
+  AppProjectsRoute: AppProjectsRoute,
   AppTasksRoute: AppTasksRoute,
 }
 

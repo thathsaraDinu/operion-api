@@ -7,7 +7,7 @@ import { useAuthStore } from "@/stores/auth-store";
  */
 export const PERMISSIONS = {
   // Employees
-  "employees:read": ["ADMIN", "HR", "MANAGER", "EMPLOYEE"],
+  "employees:read": ["ADMIN", "HR"],
   "employees:create": ["ADMIN", "HR"],
   "employees:update": ["ADMIN", "HR"],
   "employees:delete": ["ADMIN", "HR"],

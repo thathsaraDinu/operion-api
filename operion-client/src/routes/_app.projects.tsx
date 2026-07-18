@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Plus, MoreHorizontal, Pencil, Trash2, ArrowRight } from "lucide-react";
+import { Plus, MoreHorizontal, Pencil, Trash2, ArrowRight, UserCheck } from "lucide-react";
 
 import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,7 @@ import { projectsApi, type ProjectCreatePayload } from "@/lib/api/projects";
 import { apiErrorMessage } from "@/lib/api/client";
 import { fmtDate } from "@/lib/format";
 import type { Project, ProjectStatus } from "@/lib/api/types";
+import { useAuthStore } from "@/stores/auth-store";
 
 const statuses: ProjectStatus[] = ["PLANNING", "ACTIVE", "COMPLETED", "CANCELLED"];
 
@@ -65,11 +66,27 @@ function ProjectsPage() {
   const [deleting, setDeleting] = useState<Project | null>(null);
   const canManage = useHasRole("ADMIN", "HR", "MANAGER");
   const canDelete = useHasRole("ADMIN", "HR");
+  const user = useAuthStore((s) => s.user);
+  const isEmployee = user?.role === "EMPLOYEE";
 
   const query = useQuery({
-    queryKey: ["projects", { page }],
-    queryFn: () => projectsApi.list({ page, size: 12, sort: "id,desc" }),
+    queryKey: ["projects", { page, isEmployee, userId: user?.id }],
+    queryFn: () => {
+      if (isEmployee && user) {
+        return projectsApi.byEmployee(user.id, { page, size: 12, sort: "id,desc" });
+      }
+      return projectsApi.list({ page, size: 12, sort: "id,desc" });
+    },
   });
+
+  // Fetch user's assigned projects for non-employees to show membership indicator
+  const myProjectsQ = useQuery({
+    queryKey: ["projects", "my", user?.id],
+    queryFn: () => projectsApi.byEmployee(user!.id, { size: 200 }),
+    enabled: !!user && !isEmployee,
+  });
+
+  const myProjectIds = new Set(myProjectsQ.data?.content.map((p) => p.id) ?? []);
 
   return (
     <div className="space-y-6">
@@ -100,8 +117,8 @@ function ProjectsPage() {
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <Link
-                        to="/projects/$projectId"
-                        params={{ projectId: String(p.id) }}
+                        to="/project-detail"
+                        search={{ id: String(p.id) }}
                         className="text-base font-semibold text-foreground hover:text-primary"
                       >
                         {p.name}
@@ -110,28 +127,35 @@ function ProjectsPage() {
                         {p.description ?? "No description"}
                       </p>
                     </div>
-                    {canManage ? (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => setEditing(p)}>
-                            <Pencil className="h-4 w-4" /> Edit
-                          </DropdownMenuItem>
-                          {canDelete ? (
-                            <DropdownMenuItem
-                              className="text-destructive focus:text-destructive"
-                              onClick={() => setDeleting(p)}
-                            >
-                              <Trash2 className="h-4 w-4" /> Delete
+                    <div className="flex items-center gap-1">
+                      {!isEmployee && myProjectIds.has(p.id) && (
+                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary" title="You are a member of this project">
+                          <UserCheck className="h-3.5 w-3.5" />
+                        </div>
+                      )}
+                      {canManage ? (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => setEditing(p)}>
+                              <Pencil className="h-4 w-4" /> Edit
                             </DropdownMenuItem>
-                          ) : null}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    ) : null}
+                            {canDelete ? (
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onClick={() => setDeleting(p)}
+                              >
+                                <Trash2 className="h-4 w-4" /> Delete
+                              </DropdownMenuItem>
+                            ) : null}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      ) : null}
+                    </div>
                   </div>
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <div>
@@ -140,8 +164,8 @@ function ProjectsPage() {
                     <StatusBadge value={p.status} />
                   </div>
                   <Link
-                    to="/projects/$projectId"
-                    params={{ projectId: String(p.id) }}
+                    to="/project-detail"
+                    search={{ id: String(p.id) }}
                     className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
                   >
                     View details <ArrowRight className="h-3 w-3" />

@@ -42,6 +42,7 @@ import { tasksApi } from "@/lib/api/tasks";
 import { apiErrorMessage } from "@/lib/api/client";
 import { fmtDate } from "@/lib/format";
 import type { ProjectRole } from "@/lib/api/types";
+import { useAuthStore } from "@/stores/auth-store";
 
 const projectRoles: ProjectRole[] = [
   "PROJECT_MANAGER",
@@ -61,31 +62,42 @@ const addMemberSchema = z.object({
 });
 type AddMemberValues = z.infer<typeof addMemberSchema>;
 
-export const Route = createFileRoute("/_app/projects/$projectId")({
+export const Route = createFileRoute("/_app/project-detail")({
+  validateSearch: z.object({
+    id: z.string().optional(),
+  }),
   head: () => ({ meta: [{ title: "Project — Operion" }] }),
   component: ProjectDetailPage,
 });
 
 function ProjectDetailPage() {
-  const { projectId } = Route.useParams();
-  const id = Number(projectId);
+  const search = Route.useSearch();
+  const projectId = search.id ? Number(search.id) : null;
   const canManage = useHasRole("ADMIN", "HR", "MANAGER");
   const [addOpen, setAddOpen] = useState(false);
+  const user = useAuthStore((s) => s.user);
+
+  if (!projectId) {
+    return <div className="p-6">Project ID not specified</div>;
+  }
 
   const project = useQuery({
-    queryKey: ["projects", id],
-    queryFn: () => projectsApi.get(id),
+    queryKey: ["projects", projectId],
+    queryFn: () => projectsApi.get(projectId),
   });
 
   const members = useQuery({
-    queryKey: ["projects", id, "members"],
-    queryFn: () => projectsApi.members(id, { size: 100 }),
+    queryKey: ["projects", projectId, "members"],
+    queryFn: () => projectsApi.members(projectId, { size: 100 }),
   });
 
   const tasks = useQuery({
-    queryKey: ["tasks", "project", id],
-    queryFn: () => tasksApi.byProject(id, { size: 100, sort: "createdAt,desc" }),
+    queryKey: ["tasks", "project", projectId],
+    queryFn: () => tasksApi.byProject(projectId, { size: 100, sort: "createdAt,desc" }),
   });
+
+  // Find current user's role in this project
+  const myMembership = members.data?.content.find((m) => m.employeeId === user?.id);
 
   if (project.isLoading) return <LoadingBlock />;
   if (project.isError) return <ErrorState message={apiErrorMessage(project.error)} />;
@@ -103,7 +115,16 @@ function ProjectDetailPage() {
       <PageHeader
         title={project.data.name}
         description={project.data.description ?? "No description"}
-        actions={<StatusBadge value={project.data.status} />}
+        actions={
+          <div className="flex items-center gap-2">
+            {myMembership && (
+              <div className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                {myMembership.projectRole.replace(/_/g, " ")}
+              </div>
+            )}
+            <StatusBadge value={project.data.status} />
+          </div>
+        }
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -141,7 +162,7 @@ function ProjectDetailPage() {
               </TableHeader>
               <TableBody>
                 {members.data!.content.map((m) => (
-                  <MemberRow key={m.id} member={m} projectId={id} canManage={canManage} />
+                  <MemberRow key={m.id} member={m} projectId={projectId} canManage={canManage} />
                 ))}
               </TableBody>
             </Table>
@@ -185,7 +206,7 @@ function ProjectDetailPage() {
         )}
       </section>
 
-      <AddMemberDialog open={addOpen} onOpenChange={setAddOpen} projectId={id} />
+      <AddMemberDialog open={addOpen} onOpenChange={setAddOpen} projectId={projectId} />
     </div>
   );
 }
