@@ -64,3 +64,6 @@ jobs:
 
       - name: Build application
         run: ./mvnw clean package -DskipTests
+
+      - name: Build Docker image
+        run: docker build -t operion-api .
