@@ -9,6 +9,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   build:
@@ -71,5 +74,5 @@ jobs:
 
       - name: Build and Push Docker image
         run: |
-          docker build -t ghcr.io/thathsaradinu/operion-api:latest .
-          docker push ghcr.io/thathsaradinu/operion-api:latest
+          docker build -t ghcr.io/${{ github.repository_owner }}/operion-api:latest .
+          docker push ghcr.io/${{ github.repository_owner }}/operion-api:latest
