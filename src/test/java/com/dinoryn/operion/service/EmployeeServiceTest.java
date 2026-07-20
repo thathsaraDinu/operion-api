@@ -113,6 +113,7 @@ class EmployeeServiceTest {
 
     @Test
     void saveEmployee_ShouldThrowException_WhenEmailAlreadyExists() {
+        when(employeeMapper.toEntity(any())).thenReturn(employee);
         when(departmentRepository.findById(1L)).thenReturn(Optional.of(department));
         when(employeeRepository.existsByEmail(anyString())).thenReturn(true);
 
@@ -157,7 +158,6 @@ class EmployeeServiceTest {
     @Test
     void updateEmployee_ShouldUpdateEmployee_WhenValidRequest() {
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(employee));
-        when(passwordEncoder.encode(anyString())).thenReturn("newEncodedPassword");
         when(employeeRepository.save(any())).thenReturn(employee);
         when(employeeMapper.toResponse(any())).thenReturn(new EmployeeResponse());
 
@@ -167,6 +167,7 @@ class EmployeeServiceTest {
         verify(employeeRepository).save(any(Employee.class));
         assertEquals("Jane", employee.getFirstName());
         assertEquals("jane.doe@example.com", employee.getEmail());
+        verify(passwordEncoder, never()).encode(anyString());
     }
 
     @Test

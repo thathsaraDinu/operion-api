@@ -244,6 +244,36 @@ class LeaveServiceTest {
     }
 
     @Test
+    void getLeaveRequestById_ShouldReturnLeave_WhenHr() {
+        Employee hr = new Employee();
+        hr.setId(2L);
+        hr.setRole(Role.HR);
+
+        when(leaveRequestRepository.findById(1L)).thenReturn(Optional.of(leaveRequest));
+        when(leaveMapper.toResponse(any())).thenReturn(new LeaveResponse());
+
+        LeaveResponse result = leaveService.getLeaveRequestById(hr, 1L);
+
+        assertNotNull(result);
+        verify(leaveRequestRepository).findById(1L);
+    }
+
+    @Test
+    void getLeaveRequestById_ShouldReturnLeave_WhenManager() {
+        Employee manager = new Employee();
+        manager.setId(2L);
+        manager.setRole(Role.MANAGER);
+
+        when(leaveRequestRepository.findById(1L)).thenReturn(Optional.of(leaveRequest));
+        when(leaveMapper.toResponse(any())).thenReturn(new LeaveResponse());
+
+        LeaveResponse result = leaveService.getLeaveRequestById(manager, 1L);
+
+        assertNotNull(result);
+        verify(leaveRequestRepository).findById(1L);
+    }
+
+    @Test
     void getLeaveRequestById_ShouldThrowException_WhenNotOwnerAndNotAdmin() {
         Employee otherEmployee = new Employee();
         otherEmployee.setId(2L);

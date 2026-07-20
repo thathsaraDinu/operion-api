@@ -111,8 +111,6 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Reset token has expired");
         }
 
-        String newPasswordHash = passwordEncoder.encode(request.getNewPassword());
-
         // Check password history - prevent reuse of last 5 passwords
         List<PasswordHistory> recentPasswords = passwordHistoryRepository
                 .findRecentPasswordsByEmployeeId(employee.getId(), LocalDateTime.now().minusDays(365));
@@ -122,6 +120,8 @@ public class AuthServiceImpl implements AuthService {
                 throw new RuntimeException("Cannot reuse a password used in the last year");
             }
         }
+
+        String newPasswordHash = passwordEncoder.encode(request.getNewPassword());
 
         // Save current password to history before changing
         PasswordHistory history = new PasswordHistory();
@@ -158,8 +158,6 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Current password is incorrect");
         }
 
-        String newPasswordHash = passwordEncoder.encode(request.getNewPassword());
-
         // Check password history - prevent reuse of last 5 passwords
         List<PasswordHistory> recentPasswords = passwordHistoryRepository
                 .findRecentPasswordsByEmployeeId(employee.getId(), LocalDateTime.now().minusDays(365));
@@ -169,6 +167,8 @@ public class AuthServiceImpl implements AuthService {
                 throw new RuntimeException("Cannot reuse a password used in the last year");
             }
         }
+
+        String newPasswordHash = passwordEncoder.encode(request.getNewPassword());
 
         // Save current password to history before changing
         PasswordHistory history = new PasswordHistory();
