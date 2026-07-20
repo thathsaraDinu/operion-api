@@ -295,8 +295,4 @@ The project uses Lombok to reduce boilerplate code. Ensure you have the Lombok p
 
 ## License
 
-This project is licensed under the MIT License.
-
-## Support
-
-For support and questions, contact the Operion Team at support@operion.com
+This project is open source and available under the [MIT License](LICENSE).
